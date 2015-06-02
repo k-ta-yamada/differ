@@ -1,0 +1,14 @@
+:development: &default
+  :adapter: sqlite3
+  :database: db/development.sqlite3
+
+:test:
+  <<: *default
+  :database: db/test.sqlite3
+
+:benchmark:
+  <<: *default
+  :database: db/benchmark.sqlite3
+
+:production:
+  <<: *default

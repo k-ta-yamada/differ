@@ -1,0 +1,21 @@
+:development: &default
+  :search_key: :search_key
+  :search_values: [11, 12, 13, 14, 31, 32]
+  :include_keys:
+        - :include_col1_id
+        - :include_col2_id
+  :exclude_keys:
+        - :exclude_col1
+        - :exclude_col2
+  :acceptable_keys:
+        :acceptable_col1: [NilClass, String]
+        :acceptable_col2: [String, NilClass]
+
+:test:
+  <<: *default
+
+:benchmark:
+  <<: *default
+
+:production:
+  <<: *default

@@ -1,0 +1,104 @@
+GIT
+  remote: https://github.com/rsim/oracle-enhanced
+  revision: b0d1fb7ae6119dbfbabe9b1336b5df4a94139c19
+  branch: rails42
+  specs:
+    activerecord-oracle_enhanced-adapter (1.5.6)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    activemodel (4.2.1)
+      activesupport (= 4.2.1)
+      builder (~> 3.1)
+    activerecord (4.2.1)
+      activemodel (= 4.2.1)
+      activesupport (= 4.2.1)
+      arel (~> 6.0)
+    activerecord-diff (2.0.0)
+    activesupport (4.2.1)
+      i18n (~> 0.7)
+      json (~> 1.7, >= 1.7.7)
+      minitest (~> 5.1)
+      thread_safe (~> 0.3, >= 0.3.4)
+      tzinfo (~> 1.1)
+    arel (6.0.0)
+    awesome_print (1.6.1)
+    builder (3.2.2)
+    byebug (4.0.5)
+      columnize (= 0.9.0)
+    coderay (1.1.0)
+    columnize (0.9.0)
+    database_cleaner (1.4.1)
+    diff-lcs (1.2.5)
+    fuubar (2.0.0)
+      rspec (~> 3.0)
+      ruby-progressbar (~> 1.4)
+    i18n (0.7.0)
+    json (1.8.2)
+    method_source (0.8.2)
+    minitest (5.6.0)
+    pry (0.10.1)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
+    pry (0.10.1-x64-mingw32)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
+      win32console (~> 1.3)
+    pry-byebug (3.1.0)
+      byebug (~> 4.0)
+      pry (~> 0.10)
+    pry-doc (0.6.0)
+      pry (~> 0.9)
+      yard (~> 0.8)
+    pry-theme (1.1.3)
+      coderay (~> 1.1)
+      json (~> 1.8)
+    rspec (3.2.0)
+      rspec-core (~> 3.2.0)
+      rspec-expectations (~> 3.2.0)
+      rspec-mocks (~> 3.2.0)
+    rspec-core (3.2.3)
+      rspec-support (~> 3.2.0)
+    rspec-expectations (3.2.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.2.0)
+    rspec-mocks (3.2.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.2.0)
+    rspec-support (3.2.2)
+    ruby-oci8 (2.1.8)
+    ruby-oci8 (2.1.8-x64-mingw32)
+    ruby-progressbar (1.7.5)
+    shoulda-matchers (2.8.0)
+      activesupport (>= 3.0.0)
+    slop (3.6.0)
+    sqlite3 (1.3.10)
+    sqlite3 (1.3.10-x64-mingw32)
+    thread_safe (0.3.5)
+    tzinfo (1.2.2)
+      thread_safe (~> 0.1)
+    win32console (1.3.2)
+    yard (0.8.7.6)
+
+PLATFORMS
+  ruby
+  x64-mingw32
+
+DEPENDENCIES
+  activerecord
+  activerecord-diff
+  activerecord-oracle_enhanced-adapter!
+  awesome_print
+  database_cleaner
+  fuubar (~> 2.0.0)
+  pry
+  pry-byebug
+  pry-doc
+  pry-theme
+  rspec
+  ruby-oci8
+  shoulda-matchers
+  sqlite3

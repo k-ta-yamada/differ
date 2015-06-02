@@ -1,0 +1,18 @@
+:development: &default
+  :source_table_name: :source
+  :source_primary_key: :dummy_pk
+  :target_table_name: :target
+  :target_primary_key: :dummy_pk
+
+:test:
+  <<: *default
+
+:benchmark:
+  <<: *default
+  :source_table_name: :source_bench
+  :source_primary_key: :id
+  :target_table_name: :target_bench
+  :target_primary_key: :id
+
+:production:
+  <<: *default

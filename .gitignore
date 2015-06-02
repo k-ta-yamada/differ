@@ -1,0 +1,13 @@
+/.bundle
+/vendor
+~*
+*.log
+*.lnk
+/diff_result/*.csv
+/diff_result/*.txt
+/diff_result/*.log
+/db/*.sqlite3
+/log/*.log
+/log/*.log.*
+/xls
+.tags*
