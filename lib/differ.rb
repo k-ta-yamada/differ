@@ -1,7 +1,7 @@
-require 'csv'
 require './models/models'
 require './lib/differ_helper'
 require './lib/differ_result'
+require 'parallel'
 
 class Differ
   # @ref クラス定義は置いて一貫性のある構造にしましょう。
@@ -23,13 +23,14 @@ class Differ
   def self.do_perform(limit = 1_000)
     search_values = AppConfig.differ[:search_values]
     all_results = Array(search_values).map do |search_value|
+      p search_value
       # 比較実施
       differ = new(limit: limit, search_value: search_value)
       differ.do_perform
     end
 
     # ファイル出力
-    all_results.each(&:output)
+    # all_results.each(&:output)
     all_results
   end
 
@@ -47,6 +48,22 @@ class Differ
     sources =
       Source.search_key_like(@search_value, @search_key).includes(:target)
     sources_size = sources.size
+
+    # Parallel.map(sources.find_in_batches, in_threads: 4) do |src|
+    Parallel.map(sources.find_in_batches, in_processes: 4) do |src|
+      src.each.with_index do |source, idx|
+        progress_log(idx, sources_size)
+
+        # Targetが複数存在する場合（1:Nの場合）はスキップ
+        next if source.target_has_many?
+
+        source.target.each_with_index do |target, target_idx|
+          @result_set << differ_result(source, target, target_idx)
+        end
+      end
+      puts 'end parallel'
+    end
+    return
 
     sources.find_each.with_index do |source, idx|
       # TODO: find_each内での件数でしかとまらないよって、総数がlimit委譲ある場合は処理継続される

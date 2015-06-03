@@ -1,4 +1,4 @@
 --color
 --require spec_helper
 --require support/database_cleaner
--fd
+--format Fuubar

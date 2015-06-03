@@ -4,17 +4,17 @@ describe DifferHelper do
   let(:included_class) do
     Class.new do
       include DifferHelper
-      attr_accessor :results
+      attr_accessor :result_set
     end
   end
-  let(:dummy) { included_class.new }
+  let(:differ) { included_class.new }
 
   describe '#diff_keys' do
-    context '@resultsがnil, []の場合' do
-      xit do
-        [nil, []].each do |results|
-          dummy.results = results
-          expect(dummy.diff_keys).to be_nil
+    context '@result_setがnil, []の場合' do
+      it do
+        [nil, [], Set.new].each do |result|
+          differ.result_set = result
+          expect(differ.diff_keys).to be_nil
         end
       end
     end
@@ -27,10 +27,10 @@ describe DifferHelper do
         result1.diff = { aaa: [1, 2], bbb: [2, 1] }
         result2 = Result.new
         result2.diff = { aaa: [1, 2], ccc: [2, 1] }
-        dummy.results = [result1, result2]
+        differ.result_set = [result1, result2]
       end
       xit do
-        expect(dummy.diff_keys).to eq([:aaa, :bbb, :ccc])
+        expect(differ.diff_keys).to eq([:aaa, :bbb, :ccc])
       end
     end
   end
@@ -40,6 +40,10 @@ describe DifferHelper do
   end
 
   describe '#count_by_colt' do
+    xit
+  end
+
+  describe '#output' do
     xit
   end
 end

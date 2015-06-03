@@ -18,22 +18,20 @@ group :production do
       branch: 'rails42'
 end
 
-group :test, :development do
+group :test, :development, :benchmark do
   gem 'sqlite3'
 end
+
+gem 'activerecord'
+gem 'activerecord-diff'
+gem 'activerecord-import'
 
 group :test do
   gem 'rspec'
   gem 'fuubar', '~> 2.0.0'
   gem 'shoulda-matchers'
   gem 'database_cleaner'
+  # gem 'factory_girl'
 end
 
-gem 'activerecord'
-gem 'activerecord-diff'
-# gem 'activerecord-import'
-
-# gem 'parallel'
-
-# gem 'ruby-plsql-spec'
-# gem 'factory_girl'
+gem 'parallel'

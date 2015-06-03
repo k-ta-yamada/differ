@@ -1,13 +1,6 @@
+require 'csv'
+
 module DifferHelper
-  def output(col_sep = "\t")
-    return if results_empty?
-    base_file_name = "diff_result_#{@search_value.to_s.ljust(4, 'x') || 'all'}"
-
-    [output_row_multi(base_file_name, col_sep),
-     output_tolerate_diff(base_file_name, col_sep),
-     output_diff_keys_count(base_file_name)]
-  end
-
   # 差異発生項目の一覧を返す
   def diff_keys
     return if results_empty?
@@ -30,13 +23,22 @@ module DifferHelper
     end
   end
 
+  def output(col_sep = "\t")
+    return if results_empty?
+    base_file_name = "diff_result_#{@search_value.to_s.ljust(4, 'x') || 'all'}"
+
+    [output_row_multi(base_file_name, col_sep),
+     output_acceptable_diff(base_file_name, col_sep),
+     output_diff_keys_count(base_file_name)]
+  end
+
   private
 
   # 差分の出力::項目ごとに1行
   def output_row_multi(base_file_name, col_sep)
     file = "./diff_result/#{base_file_name}_row_multi.csv"
     CSV.open(file, 'w', col_sep: col_sep) do |csv|
-      @result_sets.sort_by { |r| [r.primary_key, r.target_ext] }.each do |result|
+      @result_set.sort_by { |r| [r.primary_key, r.target_ext] }.each do |result|
         temp = result_common_attr(result)
         result.diff.each { |col_nm, values| csv << [*temp, col_nm.upcase, *values] }
       end
@@ -45,13 +47,13 @@ module DifferHelper
   end
 
   # 許容される差分の出力
-  def output_tolerate_diff(base_file_name, col_sep)
+  def output_acceptable_diff(base_file_name, col_sep)
     file = "./diff_result/#{base_file_name}_tolerate_diff.csv"
     CSV.open("./diff_result/#{base_file_name}_tolerate_diff.csv", 'w', col_sep: col_sep) do |csv|
-      @result_sets.sort_by { |r| [r.primary_key, r.target_ext] }.each do |r|
-        next if r.tolerate_diff.empty?
+      @result_set.sort_by { |r| [r.primary_key, r.target_ext] }.each do |r|
+        next if r.acceptable_diff.empty?
         temp = result_common_attr(r)
-        temp.concat(r.tolerate_diff.to_a.flatten)
+        temp.concat(r.acceptable_diff.to_a.flatten)
         csv << temp
       end
     end
