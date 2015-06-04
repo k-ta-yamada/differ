@@ -16,4 +16,4 @@
 
 :benchmark:
   <<: *default
-  :search_values: [11, 44]
+  :search_values: [44]

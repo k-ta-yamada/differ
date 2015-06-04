@@ -13,25 +13,19 @@ class Differ
                 :search_value
 
   class << self
-    def do_perform_with_benchmark
+    def do_perform_with_benchmark(num = 5)
       puts 'benchmark do perform!!'
-      pp Benchmark.measure { do_perform }
+      (1..num).map do |_|
+        Benchmark.realtime { do_perform }
+      end
     end
 
     # search_valueごとに実行する
     # @return Array-of-Differ
     def do_perform
-      search_values = AppConfig.differ[:search_values]
-      all_results = Array(search_values).map do |search_value|
-        puts "#{Time.now} search_value=[#{search_value}] is start."
-
-        # 比較実施
+      all_results = Array(AppConfig.differ[:search_values]).map do |search_value|
         differ = new(search_value: search_value)
         differ.do_perform
-
-        puts "#{Time.now} search_value=[#{search_value}] is end."
-        puts
-        differ
       end
 
       # ファイル出力
@@ -50,15 +44,15 @@ class Differ
   # @return Differ
   def do_perform
     @result_set.clear
-    sources = Source.search_key_like(@search_value, @search_key).includes(:target)
+    sources =
+      Source.search_key_like(@search_value, @search_key).includes(:target)
     sources_size = sources.size
 
     # HACK: OS判定暫定処理
-    if RUBY_PLATFORM == 'x86_64-darwin14.0'
-      puts '  execute [perform_parallel]'
-      perform_parallel(sources, sources_size).flatten.each { |r| @result_set << r }
+    # if RUBY_PLATFORM == 'x86_64-darwin14.0'
+    if RUBY_PLATFORM.match(/darwin/)
+      perform_parallel(sources).flatten.each { |r| @result_set << r }
     else
-      puts '  execute [perform_none_parallel]'
       perform_none_parallel(sources, sources_size).each { |r| @result_set << r }
     end
 
@@ -69,16 +63,12 @@ class Differ
   private
 
   # @param sources
-  # @param sources_size
   # @return Array-of-DifferResult
-  def perform_parallel(sources, sources_size)
-    Parallel.map(sources.find_in_batches,
-                 in_processes: Parallel.processor_count - 1) do |sliced_sources|
-      sliced_sources.map.with_index do |source, idx|
-        progress_log(idx, sources_size)
-        next if source.target_has_many? # Targetが複数存在する場合（1:Nの場合）はスキップ
-        differ_result(source, source.target.first)
-      end
+  def perform_parallel(sources)
+    Parallel.map(sources.find_each,
+                 in_processes: Parallel.processor_count,
+                 progress: 'Differ#do_perform') do |src|
+      differ_result(src) unless src.target_has_many?
     end
   end
 
@@ -87,31 +77,26 @@ class Differ
   # @return Array-of-DifferResult
   def perform_none_parallel(sources, sources_size)
     result_set = []
-    sources.find_each.with_index do |source, idx|
+    sources.find_each.with_index do |src, idx|
       progress_log(idx, sources_size)
-      next if source.target_has_many? # Targetが複数存在する場合（1:Nの場合）はスキップ
-      result_set << differ_result(source, source.target.first)
+      result_set << differ_result(src) unless src.target_has_many?
     end
     result_set
   end
 
-  # @param  source Source
-  # @param  target Target
-  # @param  target_idx Fixnum
+  # @param  src Source
   # @return Struct::Result
   # sourceとtargetを比較してその結果を返す
-  def differ_result(source, target)
+  def differ_result(src)
     result = DifferResult.new
-    result.primary_key  = source.send(Source.primary_key)
+    result.primary_key  = src.send(Source.primary_key)
     result.search_key   = @search_key
     result.search_value = @search_value
-    result.source_ext   = source.try(:source_ext)
-    result.target_ext   = source.try(:target_ext)
-    # result.target_idx   = target_idx
+    # result.source_ext   = src.try(:source_ext)
+    # result.target_ext   = src.try(:target_ext)
 
     # 比較する
-    # result.diff = diff_execution(source, target)
-    result.diff = source.diff(target)
+    result.diff = src.diff(src.target.first)
 
     # 許容される差異をdiffからtolerateに移動する
     result.move_to_acceptable_diff!
