@@ -9,6 +9,3 @@
 :benchmark:
   <<: *default
   :database: db/benchmark.sqlite3
-
-:production:
-  <<: *default

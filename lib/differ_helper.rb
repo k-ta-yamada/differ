@@ -86,7 +86,7 @@ module DifferHelper
   # @result_setがからならその旨putsしてtrueを返す
   def results_empty?
     if @result_set.blank? || @result_set.nil?
-      puts 'results is blank!!'
+      # puts 'results is blank!!'
       true
     else
       false

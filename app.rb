@@ -2,14 +2,23 @@ require 'active_support'
 require 'active_support/core_ext/numeric'
 require 'active_support/core_ext/string/inflections'
 
+require 'ap'
+
 require './lib/app_config.rb'
 require './models/models'
 require './lib/differ'
 
+puts "AppConfig.environment=[#{AppConfig.environment}]"
+puts 'AppConfig.database=[#{AppConfig.database}]'
+ap AppConfig.database
+puts 'AppConfig.models=[#{AppConfig.models}]'
+ap AppConfig.models
+puts 'AppConfig.differ=[#{AppConfig.differ}]'
+ap AppConfig.differ
+puts
+
 if AppConfig.environment == :benchmark
   # require 'profile'
-  puts 'benchmark do perform!!'
-  # puts Benchmark.measure { Differ.new(limit: 100_000, search_value: 44).do_perform }
-  pp Benchmark.measure { Differ.do_perform(100_000) }
+  Differ.do_perform_with_benchmark
   exit
 end
