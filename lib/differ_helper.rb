@@ -98,6 +98,6 @@ module DifferHelper
     return unless (idx % 1_000).zero?
     current = idx.to_s(:delimited).rjust(7)
     total   = source_size.to_s(:delimited).rjust(7)
-    puts "    #{Time.now} [#{@search_value}] [#{current} / #{total}]"
+    puts "  #{Time.now} [#{@search_value}] [#{current} / #{total}] #{Process.pid}"
   end
 end

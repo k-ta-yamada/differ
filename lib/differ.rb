@@ -23,14 +23,19 @@ class Differ
   def self.do_perform(limit = 1_000)
     search_values = AppConfig.differ[:search_values]
     all_results = Array(search_values).map do |search_value|
-      p search_value
+      puts "#{Time.now} search_value=[#{search_value}] is start."
+
       # 比較実施
       differ = new(limit: limit, search_value: search_value)
       differ.do_perform
+
+      puts "#{Time.now} search_value=[#{search_value}] is end."
+      puts
+      differ
     end
 
     # ファイル出力
-    # all_results.each(&:output)
+    all_results.each(&:output) unless AppConfig.environment == :benchmark
     all_results
   end
 
@@ -39,38 +44,56 @@ class Differ
     @limit        = limit
     @search_key   = AppConfig.differ[:search_key]
     @search_value = search_value
+    # # _idで終わる項目はどうやらデフォルトだと
+    # # 比較対象外になるようなので、全項目を明示的に追加する
+    # Source.diff_attrs = [{ include: AppConfig.differ[:include_keys],
+    #                        exclude: AppConfig.differ[:exclude_keys] }]
   end
 
   # 指定された種目の物件で差分判定し、@result_setに結果を格納
   # @return Differ
   def do_perform
     @result_set.clear
-    sources =
-      Source.search_key_like(@search_value, @search_key).includes(:target)
+    sources = Source.search_key_like(@search_value, @search_key).includes(:target)
     sources_size = sources.size
 
-    # Parallel.map(sources.find_in_batches, in_threads: 4) do |src|
-    Parallel.map(sources.find_in_batches, in_processes: 4) do |src|
-      src.each.with_index do |source, idx|
-        progress_log(idx, sources_size)
+    # HACK: 暫定
+    if RUBY_PLATFORM == 'x86_64-darwin14.0'
+      perform_parallel(sources, sources_size).flatten.each{ |r| @result_set << r }
+    else
+      perform_none_parallel(sources, sources_size)
+    end
 
+    puts "  @result_set.count=[#{@result_set.count}]"
+    self
+  end
+
+  private
+
+  def perform_parallel(sources, sources_size)
+    Parallel.map(sources.find_in_batches,
+                 in_processes: Parallel.processor_count) do |sliced_sources|
+      sliced_sources.map.with_index do |source, idx|
+
+        progress_log(idx, sources_size)
         # Targetが複数存在する場合（1:Nの場合）はスキップ
         next if source.target_has_many?
 
-        source.target.each_with_index do |target, target_idx|
-          @result_set << differ_result(source, target, target_idx)
-        end
+        # TODO: ここで使ってる@resut_setが@result_setじゃない
+        # source.target.each_with_index do |target, target_idx|
+        #   @result_set << differ_result(source, target, target_idx)
+        # end
+        differ_result(source, source.target.first, 0)
       end
-      puts 'end parallel'
     end
-    return
+  end
 
+  def perform_none_parallel(sources, sources_size)
     sources.find_each.with_index do |source, idx|
       # TODO: find_each内での件数でしかとまらないよって、総数がlimit委譲ある場合は処理継続される
-      break if idx > @limit
+      # break if idx > @limit
 
       progress_log(idx, sources_size)
-
       # Targetが複数存在する場合（1:Nの場合）はスキップ
       next if source.target_has_many?
 
@@ -78,13 +101,7 @@ class Differ
         @result_set << differ_result(source, target, target_idx)
       end
     end
-
-    puts "  [#{search_value}] sources_size=[#{sources_size}] " \
-         "@result_set.count=[#{@result_set.count}]"
-    self
   end
-
-  private
 
   # @param  source Source
   # @param  target Target
@@ -96,26 +113,23 @@ class Differ
     result.primary_key  = source.send(Source.primary_key)
     result.search_key   = @search_key
     result.search_value = @search_value
-    result.source_ext   = source.try(:source_ext)
-    result.target_ext   = source.try(:target_ext)
+    # result.source_ext   = source.try(:source_ext)
+    # result.target_ext   = source.try(:target_ext)
     result.target_idx   = target_idx
 
     # 比較する
-    result.diff = diff_execution(source, target)
+    # result.diff = diff_execution(source, target)
+    result.diff = source.diff(target)
 
     # 許容される差異をdiffからtolerateに移動する
     result.move_to_acceptable_diff!
   end
 
-  # @param  source Source
-  # @param  target Target
-  # @return Hash
-  def diff_execution(source, target)
-    # _idで終わる項目はどうやらデフォルトだと
-    # 比較対象外になるようなので、全項目を明示的に追加する
-    Source.diff_attrs = [{ include: AppConfig.differ[:include_keys],
-                           exclude: AppConfig.differ[:exclude_keys] }]
-    # 比較する
-    source.diff(target)
-  end
+  # # @param  source Source
+  # # @param  target Target
+  # # @return Hash
+  # def diff_execution(source, target)
+  #   # 比較する
+  #   source.diff(target)
+  # end
 end

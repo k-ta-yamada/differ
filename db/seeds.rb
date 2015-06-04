@@ -70,19 +70,11 @@ Target.create(dummy_pk: sprintf('%010d', 404), search_key: 1101, acceptable_col2
 
 # performance
 if ENV['ENV'] == 'benchmark'
-  # sources = []
-  # targets = []
-  5_000.times do |i|
+  10_000.times do |i|
     p i if i % 100 == 0
     Source.create(dummy_pk: sprintf('%010d', 1_000_000_000 + i), search_key: 4400)
     Target.create(dummy_pk: sprintf('%010d', 1_000_000_000 + i), search_key: 4400)
-    # sources << Source.new(dummy_pk: sprintf('%010d', 1_000_000_000 + i), search_key: 4400)
-    # targets << Target.new(dummy_pk: sprintf('%010d', 1_000_000_000 + i), search_key: 4400)
   end
-  # puts 'Source.import'
-  # p Benchmark.measure { Source.import(sources) }
-  # puts 'Target.import'
-  # p Benchmark.measure { Target.import(targets) }
 end
 
 puts Source.count

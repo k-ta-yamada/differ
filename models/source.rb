@@ -11,6 +11,11 @@ class Source < ActiveRecord::Base
   # @url https://github.com/satour/rails-style-guide/blob/master/README-jaJA.md#macro-style-methods
   default_scope { where.not(primary_key => exclude_keys) }
 
+  # _idで終わる項目はどうやらデフォルトだと
+  # 比較対象外になるようなので、全項目を明示的に追加する
+  self.diff_attrs = [{ include: AppConfig.differ[:include_keys],
+                       exclude: AppConfig.differ[:exclude_keys] }]
+
   class << self
     # retrun key numbers of same primary key's record.
     # @return Array-of-String
