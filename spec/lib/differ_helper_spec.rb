@@ -12,7 +12,7 @@ describe DifferHelper do
   describe '#diff_keys' do
     context '@result_setがnil, []の場合' do
       it do
-        [nil, [], Set.new].each do |result|
+        [Set.new].each do |result|
           differ.result_set = result
           expect(differ.diff_keys).to be_nil
         end

@@ -19,15 +19,18 @@ class Source < ActiveRecord::Base
   class << self
     # retrun key numbers of same primary key's record.
     # @return Array-of-String
+    # rubocop:disable Metrics/AbcSize
     def exclude_keys
       # HACK: キャッシュしてしまうとテスト時のcreate分が除外対象とならないため非キャッシュ
       if AppConfig.environment == :test
-        unscoped.select(primary_key).group(primary_key).having('COUNT(*)>1').pluck(primary_key)
+        unscoped.select(primary_key).group(primary_key)
+          .having('COUNT(*)>1').pluck(primary_key)
       else
-        @exclude_keys ||=
-          unscoped.select(primary_key).group(primary_key).having('COUNT(*)>1').pluck(primary_key)
+        @exclude_keys ||= unscoped.select(primary_key).group(primary_key)
+                          .having('COUNT(*)>1').pluck(primary_key)
       end
     end
+    # rubocop:enable Metrics/AbcSize
 
     # scope method
     def search_key_like(search_value = nil, search_key = AppConfig.differ[:search_key])
@@ -39,7 +42,7 @@ class Source < ActiveRecord::Base
     private
 
     def key_check(search_key)
-      fail "#{search_key} is not exist white list" unless column_names.include?(search_key.to_s)
+      fail "Source#key_check[#{search_key}]" unless column_names.include?(search_key.to_s)
     end
   end
 

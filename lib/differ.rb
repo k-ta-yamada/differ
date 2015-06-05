@@ -14,9 +14,9 @@ class Differ
 
   class << self
     def do_perform_with_benchmark(num = 5)
-      puts 'benchmark do perform!!'
-      (1..num).map do |_|
-        Benchmark.realtime { new.do_perform }
+      (1..num).map do |i|
+        puts "benchmark do perform [#{i} of #{num}] #{Time.now}"
+        Benchmark.realtime { do_perform }
       end
     end
 
@@ -44,53 +44,47 @@ class Differ
   # @return Differ
   def do_perform
     @result_set.clear
-
-    puts "#{@search_key}=#{@search_value}"
-
     # HACK: OS判定暫定処理
-    # if RUBY_PLATFORM == 'x86_64-darwin14.0'
-    if RUBY_PLATFORM.match(/darwin/)
-      @result_set = perform_parallel.to_set
-    else
-      @result_set = perform_none_parallel.to_set
-    end
-
-    puts "  @result_set.count=[#{@result_set.count.to_s(:delimited)}]"
+    @result_set = RUBY_PLATFORM.match(/darwin/) ? do_parallel : do_find_each
     self
   end
 
-  # private
+  private
 
-  # @return Array-of-DifferResult
-  def perform_parallel
-    options = { in_processes: Parallel.processor_count,
-                progress:     'DIffer#do_perform' }
-    result_set = Parallel.map(primary_keys.each_slice(1_000), options) do |sliced_pks|
-      Source.where(Source.primary_key => sliced_pks).includes(:target).map do |src|
+  # @return Set-of-DifferResult
+  def do_parallel
+    Parallel.map(primary_keys.each_slice(1_000), parallel_options) do |pks|
+      Source.where(Source.primary_key => pks).includes(:target).map do |src|
         diff(src) unless src.target_has_many?
       end
-    end
-    result_set.flatten.compact
+    end.flatten.compact.to_set
   end
 
+  # @return Array-of-String
   def primary_keys
-    puts "#{Time.now} pks getting"
-    pks = Source.search_key_like(@search_value, @search_key).pluck(Source.primary_key)
-    puts "pks.size=[#{pks.size.to_s(:delimited)}]"
-    puts "#{Time.now} pks getted"
+    @primary_keys ||=
+      Source.search_key_like(@search_value, @search_key).pluck(Source.primary_key)
   end
 
-  # @return Array-of-DifferResult
-  def perform_none_parallel
+  # @return Hash
+  def parallel_options
+    { in_processes: Parallel.processor_count,
+      progress: '  '\
+                "#{@search_key}=[#{@search_value}]"\
+                "#{primary_keys.size.to_s(:delimited).rjust(9)}" }
+  end
+
+  # @return Set-of-DifferResult
+  def do_find_each
     sources =
       Source.search_key_like(@search_value, @search_key).includes(:target)
     sources_size = sources.size
-    result_set = []
+    result = []
     sources.find_each.with_index do |src, idx|
       progress_log(idx, sources_size)
-      result_set << diff(src) unless src.target_has_many?
+      result << diff(src) unless src.target_has_many?
     end
-    result_set
+    result.to_set
   end
 
   # @param  src Source

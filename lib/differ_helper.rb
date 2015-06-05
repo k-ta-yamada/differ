@@ -49,7 +49,9 @@ module DifferHelper
   # 許容される差分の出力
   def output_acceptable_diff(base_file_name, col_sep)
     file = "./diff_result/#{base_file_name}_tolerate_diff.csv"
-    CSV.open("./diff_result/#{base_file_name}_tolerate_diff.csv", 'w', col_sep: col_sep) do |csv|
+    CSV.open("./diff_result/#{base_file_name}_tolerate_diff.csv",
+             'w',
+             col_sep: col_sep) do |csv|
       @result_set.sort_by { |r| [r.primary_key, r.target_ext] }.each do |r|
         next if r.acceptable_diff.empty?
         temp = result_common_attr(r)

@@ -52,7 +52,7 @@ describe Source do
 
     context 'col_nm is not exist' do
       let(:error_klass) { RuntimeError }
-      let(:error_message) { "#{:not_exist_col} is not exist white list" }
+      let(:error_message) { "Source#key_check[#{:not_exist_col}]" }
       it do
         expect { Source.search_key_like(11, :not_exist_col) }
           .to raise_error(error_klass, error_message)
