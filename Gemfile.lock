@@ -1,5 +1,5 @@
 GIT
-  remote: git://github.com/rsim/oracle-enhanced.git
+  remote: https://github.com/rsim/oracle-enhanced.git
   revision: daba3e1781d92a41cf67ed503c46bdf9c5ea537a
   branch: rails42
   specs:
