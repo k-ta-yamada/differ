@@ -14,7 +14,7 @@ group :production do
   # gem 'activerecord-oracle_enhanced-adapter'
   # ref: https://github.com/rails/rails/issues/18739
   gem 'activerecord-oracle_enhanced-adapter',
-      github: 'rsim/oracle-enhanced',
+      git: 'https://github.com/rsim/oracle-enhanced.git',
       branch: 'rails42'
 end
 
