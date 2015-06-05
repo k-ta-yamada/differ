@@ -16,7 +16,7 @@ class Differ
     def do_perform_with_benchmark(num = 5)
       puts 'benchmark do perform!!'
       (1..num).map do |_|
-        Benchmark.realtime { do_perform }
+        Benchmark.realtime { new.do_perform }
       end
     end
 
@@ -44,49 +44,46 @@ class Differ
   # @return Differ
   def do_perform
     @result_set.clear
-    sources =
-      Source.search_key_like(@search_value, @search_key).includes(:target)
 
-    return parallel
+    puts "#{@search_key}=#{@search_value}"
 
     # HACK: OS判定暫定処理
     # if RUBY_PLATFORM == 'x86_64-darwin14.0'
     if RUBY_PLATFORM.match(/darwin/)
-      @result_set = perform_parallel(sources).to_set
+      @result_set = perform_parallel.to_set
     else
-      @result_set = perform_none_parallel(sources).to_set
+      @result_set = perform_none_parallel.to_set
     end
 
-    puts "  @result_set.count=[#{@result_set.count}]"
+    puts "  @result_set.count=[#{@result_set.count.to_s(:delimited)}]"
     self
   end
 
   # private
 
-  def parallel
-    pks = Source.search_key_like(@search_value, @search_key).pluck(Source.primary_key)
-
-    Parallel.map(pks.each_slice(5), in_threads: 4) do |sliced_pks|
-      puts "hello #{Thread.current}"
+  # @return Array-of-DifferResult
+  def perform_parallel
+    options = { in_processes: Parallel.processor_count,
+                progress:     'DIffer#do_perform' }
+    result_set = Parallel.map(primary_keys.each_slice(1_000), options) do |sliced_pks|
       Source.where(Source.primary_key => sliced_pks).includes(:target).map do |src|
         diff(src) unless src.target_has_many?
       end
-    end.flatten
-  end
-
-  # @param sources Source::ActiveRecord_Relation
-  # @return Array-of-DifferResult
-  def perform_parallel(sources)
-    options = { in_processes: Parallel.processor_count,
-                progress:     'DIffer#do_perform' }
-    Parallel.map(sources.find_each, options) do |src|
-      diff(src) unless src.target_has_many?
     end
+    result_set.flatten.compact
   end
 
-  # @param sources Source::ActiveRecord_Relation
+  def primary_keys
+    puts "#{Time.now} pks getting"
+    pks = Source.search_key_like(@search_value, @search_key).pluck(Source.primary_key)
+    puts "pks.size=[#{pks.size.to_s(:delimited)}]"
+    puts "#{Time.now} pks getted"
+  end
+
   # @return Array-of-DifferResult
-  def perform_none_parallel(sources)
+  def perform_none_parallel
+    sources =
+      Source.search_key_like(@search_value, @search_key).includes(:target)
     sources_size = sources.size
     result_set = []
     sources.find_each.with_index do |src, idx|

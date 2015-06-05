@@ -13,8 +13,8 @@ class Source < ActiveRecord::Base
 
   # _idで終わる項目はどうやらデフォルトだと
   # 比較対象外になるようなので、全項目を明示的に追加する
-  self.diff_attrs = [{ include: AppConfig.differ[:include_keys],
-                       exclude: AppConfig.differ[:exclude_keys] }]
+  self.diff_attrs = [{ include: AppConfig.differ[:include_keys].map(&:to_sym),
+                       exclude: AppConfig.differ[:exclude_keys].map(&:to_sym) }]
 
   class << self
     # retrun key numbers of same primary key's record.
