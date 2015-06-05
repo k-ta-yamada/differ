@@ -44,10 +44,8 @@ module AppConfig
 
     def loading_models_setting(method_name)
       file_name = "#{method_name}.yml"
-      be_included = %i(source_table_name
-                       source_primary_key
-                       target_table_name
-                       target_primary_key)
+      be_included = %i(source_table_name source_primary_key
+                       target_table_name target_primary_key)
 
       doc = load_yaml(method_name)
       key_check(doc.keys, be_included, file_name)
@@ -56,15 +54,13 @@ module AppConfig
 
     def loading_differ_settings(method_name)
       file_name = "#{method_name}.yml"
-      be_included = %i(search_key
-                       search_values
-                       include_keys
-                       exclude_keys
-                       acceptable_keys)
+      be_included = %i(search_key search_values
+                       include_keys exclude_keys acceptable_keys)
 
       doc = load_yaml(method_name)
       key_check(doc.keys, be_included, file_name)
 
+      doc[:search_values]   = Array(doc[:search_values])
       doc[:acceptable_keys] = doc[:acceptable_keys].each_with_object({}) do |kv, obj|
         obj[kv.first] = kv.last.map(&:constantize)
       end

@@ -1,6 +1,6 @@
 GIT
-  remote: https://github.com/rsim/oracle-enhanced
-  revision: b0d1fb7ae6119dbfbabe9b1336b5df4a94139c19
+  remote: git://github.com/rsim/oracle-enhanced.git
+  revision: daba3e1781d92a41cf67ed503c46bdf9c5ea537a
   branch: rails42
   specs:
     activerecord-oracle_enhanced-adapter (1.5.6)
@@ -33,14 +33,16 @@ GEM
     columnize (0.9.0)
     database_cleaner (1.4.1)
     diff-lcs (1.2.5)
+    factory_girl (4.5.0)
+      activesupport (>= 3.0.0)
     fuubar (2.0.0)
       rspec (~> 3.0)
       ruby-progressbar (~> 1.4)
     i18n (0.7.0)
-    json (1.8.2)
+    json (1.8.3)
     method_source (0.8.2)
-    minitest (5.6.0)
-    parallel (1.4.1)
+    minitest (5.7.0)
+    parallel (1.6.0)
     pry (0.10.1)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -97,13 +99,15 @@ DEPENDENCIES
   activerecord-oracle_enhanced-adapter!
   awesome_print
   database_cleaner
+  factory_girl
   fuubar (~> 2.0.0)
-  parallel
+  parallel (~> 1.6.0)
   pry
   pry-byebug
   pry-doc
   pry-theme
   rspec
   ruby-oci8
+  ruby-progressbar
   shoulda-matchers
   sqlite3

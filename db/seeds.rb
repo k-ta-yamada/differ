@@ -11,6 +11,7 @@ if ENV['ENV'] == 'benchmark'
     source_cols = { dummy_pk: i, search_key: 4400 }
     target_cols = { dummy_pk: i, search_key: 4400 }
 
+    # dummy_col_001-020までランダムに値を設定する
     1.upto(20).each do |num|
       source_cols["dummy_col_#{sprintf('%03d', num)}".to_sym] =
         rand.to_s if (rand * 10).to_i.odd?
@@ -18,6 +19,7 @@ if ENV['ENV'] == 'benchmark'
         rand.to_s if (rand * 10).to_i.odd?
     end
 
+    # dummy_col_050-300までランダムに値を設定する（Source == Target）
     50.upto(300).each do |num|
       val = (rand * 10).to_i.odd? ? rand.to_s : nil
       source_cols["dummy_col_#{sprintf('%03d', num)}".to_sym] = val

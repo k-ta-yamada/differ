@@ -14,7 +14,7 @@ group :production do
   # gem 'activerecord-oracle_enhanced-adapter'
   # ref: https://github.com/rails/rails/issues/18739
   gem 'activerecord-oracle_enhanced-adapter',
-      git: 'https://github.com/rsim/oracle-enhanced',
+      github: 'rsim/oracle-enhanced',
       branch: 'rails42'
 end
 
@@ -31,7 +31,8 @@ group :test do
   gem 'fuubar', '~> 2.0.0'
   gem 'shoulda-matchers'
   gem 'database_cleaner'
-  # gem 'factory_girl'
+  gem 'factory_girl'
 end
 
-gem 'parallel'
+gem 'parallel', '~> 1.6.0'
+gem 'ruby-progressbar'

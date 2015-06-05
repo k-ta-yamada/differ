@@ -23,7 +23,7 @@ class Differ
     # search_valueごとに実行する
     # @return Array-of-Differ
     def do_perform
-      all_results = Array(AppConfig.differ[:search_values]).map do |search_value|
+      all_results = AppConfig.differ[:search_values].map do |search_value|
         differ = new(search_value: search_value)
         differ.do_perform
       end
@@ -46,40 +46,39 @@ class Differ
     @result_set.clear
     sources =
       Source.search_key_like(@search_value, @search_key).includes(:target)
-    sources_size = sources.size
 
     # HACK: OS判定暫定処理
     # if RUBY_PLATFORM == 'x86_64-darwin14.0'
     if RUBY_PLATFORM.match(/darwin/)
-      perform_parallel(sources).flatten.each { |r| @result_set << r }
+      @result_set = perform_parallel(sources).to_set
     else
-      perform_none_parallel(sources, sources_size).each { |r| @result_set << r }
+      @result_set = perform_none_parallel(sources).to_set
     end
 
     puts "  @result_set.count=[#{@result_set.count}]"
     self
   end
 
-  private
+  # private
 
-  # @param sources
+  # @param sources Source::ActiveRecord_Relation
   # @return Array-of-DifferResult
   def perform_parallel(sources)
-    Parallel.map(sources.find_each,
-                 in_processes: Parallel.processor_count,
-                 progress: 'Differ#do_perform') do |src|
-      differ_result(src) unless src.target_has_many?
+    options = { in_processes: Parallel.processor_count,
+                progress:     'DIffer#do_perform' }
+    Parallel.map(sources.find_each, options) do |src|
+      diff(src) unless src.target_has_many?
     end
   end
 
-  # @param sources
-  # @param sources_size
+  # @param sources Source::ActiveRecord_Relation
   # @return Array-of-DifferResult
-  def perform_none_parallel(sources, sources_size)
+  def perform_none_parallel(sources)
+    sources_size = sources.size
     result_set = []
     sources.find_each.with_index do |src, idx|
       progress_log(idx, sources_size)
-      result_set << differ_result(src) unless src.target_has_many?
+      result_set << diff(src) unless src.target_has_many?
     end
     result_set
   end
@@ -87,7 +86,7 @@ class Differ
   # @param  src Source
   # @return Struct::Result
   # sourceとtargetを比較してその結果を返す
-  def differ_result(src)
+  def diff(src)
     result = DifferResult.new
     result.primary_key  = src.send(Source.primary_key)
     result.search_key   = @search_key
