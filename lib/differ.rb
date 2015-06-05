@@ -47,6 +47,8 @@ class Differ
     sources =
       Source.search_key_like(@search_value, @search_key).includes(:target)
 
+    return parallel
+
     # HACK: OS判定暫定処理
     # if RUBY_PLATFORM == 'x86_64-darwin14.0'
     if RUBY_PLATFORM.match(/darwin/)
@@ -60,6 +62,17 @@ class Differ
   end
 
   # private
+
+  def parallel
+    pks = Source.search_key_like(@search_value, @search_key).pluck(Source.primary_key)
+
+    Parallel.map(pks.each_slice(5), in_threads: 4) do |sliced_pks|
+      puts "hello #{Thread.current}"
+      Source.where(Source.primary_key => sliced_pks).includes(:target).map do |src|
+        diff(src) unless src.target_has_many?
+      end
+    end.flatten
+  end
 
   # @param sources Source::ActiveRecord_Relation
   # @return Array-of-DifferResult
