@@ -1,83 +1,70 @@
 describe Source do
   describe '.default_scope' do
-    context "same primary key's record is exclude" do
+    context '同一のprimary_keyを持つレコードが存在する場合' do
       before do
-        Source.create(dummy_pk: '1', search_key: '1101')
-        Source.create(dummy_pk: '1', search_key: '1102')
-        Source.create(dummy_pk: '2', search_key: '1103')
+        create_list(:source, 2, dummy_pk: 1)
+        create(:source, dummy_pk: 2)
       end
-      it do
+      it '同一のprimary_keyを持つレコードが除外されること' do
         expect(Source.count).to eq(1)
-        expect(Source.first.dummy_pk).to eq('2')
+        expect(Source.first).to eq(build(:source, dummy_pk: 2))
       end
     end
   end
 
   describe '.exclude_keys' do
-    before do
-      Source.create(dummy_pk: '1', search_key: '1101')
-      Source.create(dummy_pk: '2', search_key: '1101')
-      Source.create(dummy_pk: '2', search_key: '1102')
+    context '同一のprimary_keyを持つレコードが存在する場合' do
+      before do
+        create_list(:source, 2, dummy_pk: 1)
+        create(:source, dummy_pk: 2)
+        create_list(:source, 2, dummy_pk: 3)
+      end
+      it '対象となるレコードのprimary_keyを返すこと' do
+        expect(Source.exclude_keys).to match_array(%w(1 3))
+      end
     end
-    it do
-      expect(Source.exclude_keys).to eq(['2'])
-      expect(Source.exclude_keys.size).to eq(1)
+
+    context '同一のprimary_keyを持つレコードが存在しない場合' do
+      before do
+        create_list(:source, 2)
+      end
+      it '[]となること' do
+        expect(Source.exclude_keys).to match_array([])
+      end
     end
   end
 
   describe '.search_key_like' do
-    context 'col_nm is default' do
+    context 'カラム名を指定しない場合' do
       before do
-        Source.create(dummy_pk: '1', search_key: '1101')
-        Source.create(dummy_pk: '2', search_key: '1201')
-        Source.create(dummy_pk: '3', search_key: '1301')
+        create(:source, search_key: '1101')
+        create(:source, search_key: '1201')
+        create(:source, search_key: '1301')
+        create(:source, search_key: '1401')
       end
-      it do
-        expect(Source.count).to eq(3)
+      it 'differ.ymlに設定したカラム名で検索すること' do
+        expect(Source.count).to eq(4)
         expect(Source.search_key_like(11).count).to eq(1)
       end
     end
 
-    context 'col_nm is not default' do
+    context 'カラム名を指定した場合' do
       before do
-        Source.create(dummy_pk: '1', search_key: '1101', include_col1_id: '2101')
-        Source.create(dummy_pk: '2', search_key: '1201', include_col1_id: '2201')
-        Source.create(dummy_pk: '3', search_key: '1301', include_col1_id: '2301')
+        create(:source, include_col1_id: '2101')
+        create(:source, include_col1_id: '2201')
+        create(:source, include_col1_id: '2301')
+        create(:source, include_col1_id: '2401')
       end
-      it 'col_nm is not default' do
-        expect(Source.count).to eq(3)
+      it '指定したカラム名で検索すること' do
+        expect(Source.count).to eq(4)
         expect(Source.search_key_like(21, :include_col1_id).count).to eq(1)
       end
     end
 
-    context 'col_nm is not exist' do
-      let(:error_klass) { RuntimeError }
-      let(:error_message) { "Source#key_check[#{:not_exist_col}]" }
-      it do
-        expect { Source.search_key_like(11, :not_exist_col) }
-          .to raise_error(error_klass, error_message)
+    context '存在しないカラム名を指定した場合' do
+      it 'エラーとなること' do
+        expect { Source.search_key_like(11, :not_exist_col) }.to raise_error(RuntimeError)
       end
-    end
-  end
-
-  describe '#target_has_many?' do
-    subject { Source.first.target_has_many? }
-
-    context 'target is many' do
-      before do
-        Source.create(dummy_pk: '1', search_key: '1101', include_col1_id: '2101')
-        Target.create(dummy_pk: '1', search_key: '1101', include_col1_id: '2301')
-        Target.create(dummy_pk: '1', search_key: '1101', include_col1_id: '2201')
-      end
-      it { should be_truthy }
-    end
-
-    context 'target is one' do
-      before do
-        Source.create(dummy_pk: '1', search_key: '1101', include_col1_id: '2101')
-        Target.create(dummy_pk: '1', search_key: '1101', include_col1_id: '2301')
-      end
-      it { should be_falsey }
     end
   end
 end

@@ -4,16 +4,19 @@ class DifferResult
                 :search_value,
                 :source_ext,
                 :target_ext,
-                :target_idx,
+                # :target_idx,
                 :diff,
                 :acceptable_diff
 
   def initialize
     @diff = {}
+    @acceptable_diff = []
   end
 
   # 許容される差異をdiffから削除
+  # @return DifferResult
   def move_to_acceptable_diff!
+    return self if @diff.empty?
     acceptables = AppConfig.differ[:acceptable_keys]
 
     @acceptable_diff = @diff.select do |key, val|

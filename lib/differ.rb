@@ -29,7 +29,7 @@ class Differ
       end
 
       # ファイル出力
-      all_results.each(&:output) unless AppConfig.environment == :benchmark
+      ap all_results.map(&:output) unless AppConfig.environment == :benchmark
       all_results
     end
   end
@@ -55,15 +55,14 @@ class Differ
   def do_parallel
     Parallel.map(primary_keys.each_slice(1_000), parallel_options) do |pks|
       Source.where(Source.primary_key => pks).includes(:target).map do |src|
-        diff(src) unless src.target_has_many?
+        diff(src) unless src.target.many?
       end
     end.flatten.compact.to_set
   end
 
   # @return Array-of-String
   def primary_keys
-    @primary_keys ||=
-      Source.search_key_like(@search_value, @search_key).pluck(Source.primary_key)
+    Source.search_key_like(@search_value, @search_key).pluck(Source.primary_key)
   end
 
   # @return Hash
@@ -82,7 +81,7 @@ class Differ
     result = []
     sources.find_each.with_index do |src, idx|
       progress_log(idx, sources_size)
-      result << diff(src) unless src.target_has_many?
+      result << diff(src) unless src.target.many?
     end
     result.to_set
   end

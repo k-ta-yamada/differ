@@ -5,8 +5,9 @@ puts "Target.delete_all=[#{Target.delete_all}]"
 
 # benchmark
 if ENV['ENV'] == 'benchmark'
+  ActiveRecord::Base.logger.level = Logger::INFO
   10_000.times do |i|
-    p i if i % 100 == 0
+    puts "#{Time.now} #{i}" if i % 100 == 0
 
     source_cols = { dummy_pk: i, search_key: 4400 }
     target_cols = { dummy_pk: i, search_key: 4400 }

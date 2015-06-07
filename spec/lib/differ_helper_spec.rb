@@ -5,42 +5,65 @@ describe DifferHelper do
     Class.new do
       include DifferHelper
       attr_accessor :result_set
+      def initialize
+        @result_set = Set.new
+      end
     end
   end
   let(:differ) { included_class.new }
 
   describe '#diff_keys' do
-    context '@result_setがnil, []の場合' do
-      it do
-        [Set.new].each do |result|
-          differ.result_set = result
-          expect(differ.diff_keys).to be_nil
-        end
-      end
+    context '@result_setが空の場合' do
+      subject { differ.diff_keys }
+      it { should be_nil }
     end
 
-    context 'keyの一覧を返すこと' do
+    context '@result_setが空ではない場合' do
       before do
-        # TODO: DifferResult.newに直す
-        Result = Struct.new(:diff)
-        result1 = Result.new
-        result1.diff = { aaa: [1, 2], bbb: [2, 1] }
-        result2 = Result.new
-        result2.diff = { aaa: [1, 2], ccc: [2, 1] }
-        differ.result_set = [result1, result2]
+        differ.result_set << build(:differ_result, :diff1)
+        differ.result_set << build(:differ_result, :diff2)
       end
-      xit do
-        expect(differ.diff_keys).to eq([:aaa, :bbb, :ccc])
+      it 'keyの配列を返すこと' do
+        expect(differ.diff_keys).to eq([:a, :b, :c])
       end
     end
   end
 
   describe '#results_search' do
-    xit
+    context '@result_setが空の場合' do
+      subject { differ.results_search(:a) }
+      it { should be_nil }
+    end
+
+    context '@result_setが空ではない場合' do
+      before do
+        differ.result_set << build(:differ_result, :diff1)
+        differ.result_set << build(:differ_result, :diff2)
+        differ.result_set << build(:differ_result, :diff3)
+      end
+      it '指定されたkeyを持つ@result_setを返すこと' do
+        expect(differ.results_search(:a).size).to eq(2)
+      end
+    end
   end
 
   describe '#count_by_colt' do
-    xit
+    context '@result_setが空の場合' do
+      subject { differ.count_by_col }
+      it { should be_nil }
+    end
+
+    context '@result_setが空ではない場合' do
+      before do
+        differ.result_set << build(:differ_result, :diff1)
+        differ.result_set << build(:differ_result, :diff2)
+        differ.result_set << build(:differ_result, :diff3)
+      end
+      let(:expected) { { a: 2, b: 2, c: 2 } }
+      it 'keyごとの件数を集計して返すこと' do
+        expect(differ.count_by_col).to eq(expected)
+      end
+    end
   end
 
   describe '#output' do
