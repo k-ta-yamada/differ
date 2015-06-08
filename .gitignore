@@ -4,9 +4,9 @@
 *.log
 *.lnk
 /config/production/*.yml
-/diff_result/*.csv
-/diff_result/*.txt
-/diff_result/*.log
+/result/*.csv
+/result/*.txt
+/result/*.log
 /db/*.sqlite3*
 /log/*.log
 /log/*.log.*
