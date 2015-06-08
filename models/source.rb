@@ -43,9 +43,7 @@ class Source < ActiveRecord::Base
     private
 
     def key_check(search_key)
-      unless column_names.include?(search_key.to_s)
-        fail "Source#key_check[#{search_key}]"
-      end
+      fail "Source#key_check[#{search_key}]" unless column_names.include?(search_key.to_s)
     end
   end
 end

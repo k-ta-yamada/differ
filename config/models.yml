@@ -10,6 +10,6 @@
 :benchmark:
   <<: *default
   :source_table_name: :source_bench
-  :source_primary_key: :id
+  :source_primary_key: :dummy_pk
   :target_table_name: :target_bench
-  :target_primary_key: :id
+  :target_primary_key: :dummy_pk

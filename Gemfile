@@ -32,6 +32,7 @@ group :test do
   gem 'shoulda-matchers'
   gem 'database_cleaner'
   gem 'factory_girl'
+  gem 'faker'
 end
 
 gem 'parallel', '~> 1.6.0'

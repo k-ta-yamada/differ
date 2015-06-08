@@ -67,9 +67,9 @@ class Differ
 
   # @return Hash
   def parallel_options
+    # TODO: primary_keysで件数取得のためクエリが走ってる
     { in_processes: Parallel.processor_count,
-      progress: '  '\
-                "#{@search_key}=[#{@search_value}]"\
+      progress: "#{@search_key}=[#{@search_value}]"\
                 "#{primary_keys.size.to_s(:delimited).rjust(9)}" }
   end
 

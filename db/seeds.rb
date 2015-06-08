@@ -5,30 +5,36 @@ puts "Target.delete_all=[#{Target.delete_all}]"
 
 # benchmark
 if ENV['ENV'] == 'benchmark'
+  require 'faker'
+  require 'factory_girl'
+  include FactoryGirl::Syntax::Methods
+  FactoryGirl.find_definitions
   ActiveRecord::Base.logger.level = Logger::INFO
-  10_000.times do |i|
+
+
+  10.times do |i|
     puts "#{Time.now} #{i}" if i % 100 == 0
 
-    source_cols = { dummy_pk: i, search_key: 4400 }
-    target_cols = { dummy_pk: i, search_key: 4400 }
+    source_cols = {}
+    target_cols = {}
 
     # dummy_col_001-020までランダムに値を設定する
     1.upto(20).each do |num|
-      source_cols["dummy_col_#{sprintf('%03d', num)}".to_sym] =
-        rand.to_s if (rand * 10).to_i.odd?
-      target_cols["dummy_col_#{sprintf('%03d', num)}".to_sym] =
-        rand.to_s if (rand * 10).to_i.odd?
+      col_nm = "dummy_col_#{sprintf('%03d', num)}".to_sym
+      source_cols[col_nm] = Faker::Lorem.word
+      target_cols[col_nm] = Faker::Lorem.word
     end
 
-    # dummy_col_050-300までランダムに値を設定する（Source == Target）
+    # dummy_col_050-300までSourceとTargetで一致する値を設定する
     50.upto(300).each do |num|
-      val = (rand * 10).to_i.odd? ? rand.to_s : nil
-      source_cols["dummy_col_#{sprintf('%03d', num)}".to_sym] = val
-      target_cols["dummy_col_#{sprintf('%03d', num)}".to_sym] = val
+      word = Faker::Lorem.word
+      col_nm = "dummy_col_#{sprintf('%03d', num)}".to_sym
+      source_cols[col_nm] = word
+      target_cols[col_nm] = word
     end
 
-    Source.create(source_cols)
-    Target.create(target_cols)
+    create(:source_for_benchmark, source_cols)
+    create(:target_for_benchmark, target_cols)
   end
 else
   1.upto(10).each do |i|
