@@ -1,4 +1,5 @@
 require './app'
+require 'parallel'
 require 'faker'
 require 'factory_girl'
 include FactoryGirl::Syntax::Methods
@@ -10,40 +11,21 @@ puts "Target.delete_all=[#{Target.delete_all}]"
 # benchmark
 if ENV['ENV'] == 'benchmark'
   ActiveRecord::Base.logger.level = Logger::INFO
-  puts Benchmark.realtime {
-  ActiveRecord::Base.transaction do
-    10_000.times do |i|
-      puts "#{Time.now} #{i}" if i % 100 == 0
-
-      source_cols = {}
-      target_cols = {}
-
-      # dummy_col_001-020までランダムに値を設定する
-      1.upto(20).each do |num|
-        col_nm = "dummy_col_#{sprintf('%03d', num)}".to_sym
-        source_cols[col_nm] = Faker::Lorem.word
-        target_cols[col_nm] = Faker::Lorem.word
+  10.times do
+    ActiveRecord::Base.transaction do
+      1_000.times do |i|
+        puts "#{Time.now} #{i}" if i % 100 == 0
+        create(:source, :for_banchmark1, :for_banchmark2)
+        create(:target, :for_banchmark1, :for_banchmark2)
       end
-
-      # dummy_col_050-300までSourceとTargetで一致する値を設定する
-      50.upto(300).each do |num|
-        word = Faker::Lorem.word
-        col_nm = "dummy_col_#{sprintf('%03d', num)}".to_sym
-        source_cols[col_nm] = word
-        target_cols[col_nm] = word
-      end
-
-      create(:source, source_cols)
-      create(:target, target_cols)
     end
   end
-  }
 else
   # Source:Target = 1:0
   5.times do
-   create(:source, search_key: '1000')
-   build(:target, search_key: '1000') # dummy_pkの採番のためbuildする
- end
+    create(:source, search_key: '1000')
+    build(:target, search_key: '1000') # dummy_pkの採番のためbuildする
+  end
 
   # Source:Target = 1:1
   5.times do
@@ -53,7 +35,7 @@ else
 
   # Source:Target = 1:N
   5.times do
-    source = create(:source, search_key: '1000')
+    create(:source, search_key: '1000')
     target = create(:target, search_key: '1000')
     create(:target, dummy_pk: target.dummy_pk, search_key: '1000')
   end
