@@ -10,36 +10,39 @@ puts "Target.delete_all=[#{Target.delete_all}]"
 # benchmark
 if ENV['ENV'] == 'benchmark'
   ActiveRecord::Base.logger.level = Logger::INFO
+  puts Benchmark.realtime {
+  ActiveRecord::Base.transaction do
+    10_000.times do |i|
+      puts "#{Time.now} #{i}" if i % 100 == 0
 
-  10_000.times do |i|
-    puts "#{Time.now} #{i}" if i % 100 == 0
+      source_cols = {}
+      target_cols = {}
 
-    source_cols = {}
-    target_cols = {}
+      # dummy_col_001-020までランダムに値を設定する
+      1.upto(20).each do |num|
+        col_nm = "dummy_col_#{sprintf('%03d', num)}".to_sym
+        source_cols[col_nm] = Faker::Lorem.word
+        target_cols[col_nm] = Faker::Lorem.word
+      end
 
-    # dummy_col_001-020までランダムに値を設定する
-    1.upto(20).each do |num|
-      col_nm = "dummy_col_#{sprintf('%03d', num)}".to_sym
-      source_cols[col_nm] = Faker::Lorem.word
-      target_cols[col_nm] = Faker::Lorem.word
+      # dummy_col_050-300までSourceとTargetで一致する値を設定する
+      50.upto(300).each do |num|
+        word = Faker::Lorem.word
+        col_nm = "dummy_col_#{sprintf('%03d', num)}".to_sym
+        source_cols[col_nm] = word
+        target_cols[col_nm] = word
+      end
+
+      create(:source, source_cols)
+      create(:target, target_cols)
     end
-
-    # dummy_col_050-300までSourceとTargetで一致する値を設定する
-    50.upto(300).each do |num|
-      word = Faker::Lorem.word
-      col_nm = "dummy_col_#{sprintf('%03d', num)}".to_sym
-      source_cols[col_nm] = word
-      target_cols[col_nm] = word
-    end
-
-    create(:source_for_benchmark, source_cols)
-    create(:target_for_benchmark, target_cols)
   end
+  }
 else
   # Source:Target = 1:0
   5.times do
    create(:source, search_key: '1000')
-   build_stubbed(:target, search_key: '1000')
+   build(:target, search_key: '1000') # dummy_pkの採番のためbuildする
  end
 
   # Source:Target = 1:1
