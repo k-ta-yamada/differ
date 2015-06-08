@@ -26,7 +26,7 @@ describe AppConfig do
     subject { described_class.differ }
     let(:expected) do
       { search_key:      :search_key,
-        search_values:   %w(11 12 13 14 31 32).map(&:to_i),
+        search_values:   %w(0 1 2 3 4).map(&:to_i),
         include_keys:    %i(include_col1_id include_col2_id),
         exclude_keys:    %i(exclude_col1 exclude_col2),
         acceptable_keys: { acceptable_col1: [NilClass, String],

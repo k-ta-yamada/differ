@@ -14,11 +14,17 @@ class CreateSourceTable < ActiveRecord::Migration
       t.string :acceptable_col1
       t.string :acceptable_col2
 
-      types = %i(string text
-                 integer float decimal
-                 datetime timestamp time date
-                 binary
+      types = %i(string
+                 text
+                 integer
+                 float
+                 decimal
+                 time
+                 date
                  boolean)
+                 # datetime
+                 # timestamp
+                 # binary
       types.each { |type| t.send(type, "#{type}_col") }
     end
   end
