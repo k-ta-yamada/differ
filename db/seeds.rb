@@ -28,8 +28,8 @@ else
 
   # Source:Target = 1:1
   5.times do
-    create(:source, search_key: '1000')
-    create(:target, search_key: '1000')
+    create(:source, search_key: '1000', text_col: 'あいうえお')
+    create(:target, search_key: '1000', text_col: 'かきくけこ')
   end
 
   # Source:Target = 1:N

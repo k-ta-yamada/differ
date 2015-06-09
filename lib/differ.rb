@@ -35,8 +35,8 @@ class Differ
     @result_set   = Set.new
     @search_key   = AppConfig.differ[:search_key]
     @search_value = search_value
-    @primary_keys =
-      Source.search_key_like(@search_value, @search_key).pluck(Source.primary_key)
+    @primary_keys = Source.search_key_like(@search_value, @search_key)
+                    .pluck(Source.primary_key)
   end
 
   # 指定された種目の物件で差分判定し、@result_setに結果を格納
@@ -48,7 +48,7 @@ class Differ
     self
   end
 
-  # private
+  private
 
   # @return Set-of-DifferResult
   def do_parallel

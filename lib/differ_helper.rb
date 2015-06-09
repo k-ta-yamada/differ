@@ -42,7 +42,7 @@ module DifferHelper
   BASE_DIR_NAME = './result/'
 
   def output_csv_base(file_name, col_sep, attr_name)
-    CSV.open(file_name, 'w', col_sep: col_sep) do |csv|
+    CSV.open(file_name, 'w', external_encoding: Encoding::SJIS, col_sep: col_sep) do |csv|
       @result_set.each do |r|
         r.send(attr_name).each { |k, v| csv << [*common_attr(r), k.upcase, *v] }
       end
