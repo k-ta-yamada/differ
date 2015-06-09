@@ -1,5 +1,4 @@
 require './app'
-require 'parallel'
 require 'faker'
 require 'factory_girl'
 include FactoryGirl::Syntax::Methods

@@ -60,15 +60,13 @@ module AppConfig
       doc = load_yaml(method_name)
       key_check(doc.keys, be_included, file_name)
 
-      doc[:search_values]   = Array(doc[:search_values])
+      doc[:search_values] = Array(doc[:search_values])
       doc[:acceptable_keys] = doc[:acceptable_keys].each_with_object({}) do |kv, obj|
         obj[kv.first] = kv.last.map(&:constantize)
       end
       doc
     end
 
-    # @ref 対称差、すなわち、2 つの集合のいずれか一方にだけ属するすべての要素からなる 新しい集合を作ります。
-    # @url http://docs.ruby-lang.org/ja/2.1.0/method/Set/i/=5e.html
     def key_check(doc_keys, be_included, file_name)
       result = doc_keys.to_set ^ be_included.to_set
       fail "[#{file_name}] #{result.inspect}" if result.present?

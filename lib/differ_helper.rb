@@ -39,12 +39,12 @@ module DifferHelper
 
   private
 
-  BASE_DIR_NAME = '/result/'
+  BASE_DIR_NAME = './result/'
 
-  def output_csv_base(file_name, col_sep, target)
+  def output_csv_base(file_name, col_sep, attr_name)
     CSV.open(file_name, 'w', col_sep: col_sep) do |csv|
       @result_set.each do |r|
-        r.send(target).each { |k, v| csv << [*common_attr(r), k.upcase, *v] }
+        r.send(attr_name).each { |k, v| csv << [*common_attr(r), k.upcase, *v] }
       end
     end
     file_name
@@ -52,27 +52,28 @@ module DifferHelper
 
   # 差分の出力::項目ごとに1行
   def output_diff(base_file_name, col_sep)
-    file_name = ".#{BASE_DIR_NAME}#{base_file_name}_diff.csv"
+    file_name = "#{BASE_DIR_NAME}#{base_file_name}_diff.csv"
     output_csv_base(file_name, col_sep, :diff)
   end
 
   # 許容される差分の出力
   def output_acceptable_diff(base_file_name, col_sep)
-    file_name = ".#{BASE_DIR_NAME}#{base_file_name}_acceptable_diff.csv"
+    file_name = "#{BASE_DIR_NAME}#{base_file_name}_acceptable_diff.csv"
     output_csv_base(file_name, col_sep, :acceptable_diff)
   end
 
   # 差分項目の一覧を出力
   def output_count_by_col(base_file_name)
-    file = ".#{BASE_DIR_NAME}#{base_file_name}_diff_keys_count.txt"
-    File.open(file, 'w') do |f|
+    file_name = "#{BASE_DIR_NAME}#{base_file_name}_diff_keys_count.txt"
+    File.open(file_name, 'w') do |f|
       count_by_col.each { |k, v| f.puts "#{k.upcase}\t#{v}" }
     end
-    file
+    file_name
   end
 
-  # @param result Struct::Result
-  # Struct::Resultのdiff以外の属性の値を配列にして返す
+  # DifferResultのdiff以外の属性値を配列にして返す
+  # @param result DifferResult
+  # @return Array
   def common_attr(result)
     [result.primary_key,
      result.search_key,
@@ -81,15 +82,16 @@ module DifferHelper
      result.target_ext]
   end
 
-  # #execution_of_diff_by_search_keyで進捗状況出力する部分
-  #   単に見苦しいから切り出した
+  # Differ#do_find_eachの進捗状況出力要
+  # @param idx Fixnum
+  # @param source_size Fixnum
   def progress_log(idx, source_size)
     return unless (idx % 1_000).zero?
-    puts '  ' \
-         "#{Time.now} " \
-         "[#{@search_value}] " \
-         "[#{idx.to_s(:delimited).rjust(7)} / " \
-         "#{source_size.to_s(:delimited).rjust(7)}] " \
-         "#{Process.pid}"
+    puts [' ',
+          "#{Time.now} ",
+          "[#{@search_value}] ",
+          "[#{idx.to_s(:delimited).rjust(7)} / ",
+          "#{source_size.to_s(:delimited).rjust(7)}] ",
+          "#{Process.pid}"].join(' ')
   end
 end

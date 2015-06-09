@@ -4,7 +4,6 @@ require 'active_support/core_ext/string/inflections'
 require 'ap'
 
 require './lib/app_config.rb'
-require './models/models'
 require './lib/differ'
 
 puts 'AppConfig.environment=[#{AppConfig.environment}]'

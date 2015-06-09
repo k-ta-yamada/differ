@@ -4,10 +4,9 @@ require './lib/differ_result'
 require 'parallel'
 
 class Differ
-  # @ref クラス定義は置いて一貫性のある構造にしましょう。
-  # @url https://github.com/fortissimo1997/ruby-style-guide/blob/japanese/README.ja.md#consistent-classes
   include DifferHelper
 
+  attr_reader :primary_keys
   attr_accessor :result_set,
                 :search_key,
                 :search_value
@@ -23,21 +22,21 @@ class Differ
     # search_valueごとに実行する
     # @return Array-of-Differ
     def do_perform
-      all_results = AppConfig.differ[:search_values].map do |search_value|
-        differ = new(search_value: search_value)
-        differ.do_perform
+      results = AppConfig.differ[:search_values].map do |search_value|
+        new(search_value).do_perform
       end
 
-      # ファイル出力
-      ap all_results.map(&:output) unless AppConfig.environment == :benchmark
-      all_results
+      ap results.map(&:output) unless AppConfig.environment == :benchmark
+      results
     end
   end
 
-  def initialize(search_value: 11)
+  def initialize(search_value)
     @result_set   = Set.new
     @search_key   = AppConfig.differ[:search_key]
     @search_value = search_value
+    @primary_keys =
+      Source.search_key_like(@search_value, @search_key).pluck(Source.primary_key)
   end
 
   # 指定された種目の物件で差分判定し、@result_setに結果を格納
@@ -49,44 +48,36 @@ class Differ
     self
   end
 
-  private
+  # private
 
   # @return Set-of-DifferResult
   def do_parallel
-    Parallel.map(primary_keys.each_slice(1_000), parallel_options) do |pks|
+    Parallel.map(@primary_keys.each_slice(1_000), parallel_options) do |pks|
       Source.where(Source.primary_key => pks).includes(:target).map do |src|
         diff(src) unless src.target.many?
       end
     end.flatten.compact.to_set
   end
 
-  # @return Array-of-String
-  def primary_keys
-    Source.search_key_like(@search_value, @search_key).pluck(Source.primary_key)
-  end
-
   # @return Hash
   def parallel_options
-    # TODO: primary_keysで件数取得のためクエリが走ってる
     { in_processes: Parallel.processor_count,
-      progress: "#{@search_key}=[#{@search_value}]"\
-                "#{primary_keys.size.to_s(:delimited).rjust(9)}" }
+      progress: ["#{@search_key}=[#{@search_value}]",
+                 "#{@primary_keys.size.to_s(:delimited).rjust(9)}"].join }
   end
 
   # @return Set-of-DifferResult
   def do_find_each
-    sources =
-      Source.search_key_like(@search_value, @search_key).includes(:target)
-    sources_size = sources.size
     result = []
-    sources.find_each.with_index do |src, idx|
-      progress_log(idx, sources_size)
+    Source.search_key_like(@search_value, @search_key).includes(:target)
+      .find_each.with_index do |src, idx|
+      progress_log(idx, @primary_keys)
       result << diff(src) unless src.target.many?
     end
     result.to_set
   end
 
-  # @param  src Source
+  # @param src Source
   # @return Struct::Result
   # sourceとtargetを比較してその結果を返す
   def diff(src)
