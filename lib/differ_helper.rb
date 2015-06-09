@@ -8,13 +8,6 @@ module DifferHelper
     @result_set.map(&:diff).map(&:keys).flatten.uniq
   end
 
-  # 指定された項目を差異としてもつ@result_setを返す
-  # @return Array-of-Differ, Array
-  def results_search(key)
-    return if @result_set.empty?
-    @result_set.select { |r| r.diff.key?(key.to_sym) }
-  end
-
   # @result_setから項目別の件数を集計する
   # @ return Hash
   def count_by_col

@@ -29,24 +29,6 @@ describe DifferHelper do
     end
   end
 
-  describe '#results_search' do
-    context '@result_setが空の場合' do
-      subject { differ.results_search(:a) }
-      it { should be_nil }
-    end
-
-    context '@result_setが空ではない場合' do
-      before do
-        differ.result_set << build(:differ_result, :diff1)
-        differ.result_set << build(:differ_result, :diff2)
-        differ.result_set << build(:differ_result, :diff3)
-      end
-      it '指定されたkeyを持つ@result_setを返すこと' do
-        expect(differ.results_search(:a).size).to eq(2)
-      end
-    end
-  end
-
   describe '#count_by_col' do
     context '@result_setが空の場合' do
       subject { differ.count_by_col }
