@@ -3,6 +3,7 @@
 ~*
 *.log
 *.lnk
+.tags*
 /config/production/*.yml
 /result/*.csv
 /result/*.txt
@@ -11,4 +12,3 @@
 /log/*.log
 /log/*.log.*
 /xls
-.tags*

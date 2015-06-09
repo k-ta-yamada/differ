@@ -35,7 +35,8 @@ module AppConfig
     end
 
     def load_yaml(method_name)
-      YAML.load_file("#{CONFIG_BASE_DIR}#{sub_dir}#{method_name}.yml")[environment]
+      file_name = "#{CONFIG_BASE_DIR}#{sub_dir}#{method_name}.yml"
+      YAML.load_file(file_name)[environment]
     end
 
     def load_file_database_setting(method_name)
@@ -44,8 +45,10 @@ module AppConfig
 
     def loading_models_setting(method_name)
       file_name = "#{method_name}.yml"
-      be_included = %i(source_table_name source_primary_key
-                       target_table_name target_primary_key)
+      be_included = %i(source_table_name
+                       source_primary_key
+                       target_table_name
+                       target_primary_key)
 
       doc = load_yaml(method_name)
       key_check(doc.keys, be_included, file_name)
@@ -54,8 +57,12 @@ module AppConfig
 
     def loading_differ_settings(method_name)
       file_name = "#{method_name}.yml"
-      be_included = %i(search_key search_values
-                       include_keys exclude_keys acceptable_keys)
+      be_included = %i(search_key
+                       search_values
+                       include_keys
+                       exclude_keys
+                       acceptable_keys
+                       output_file_encoding)
 
       doc = load_yaml(method_name)
       key_check(doc.keys, be_included, file_name)
@@ -64,6 +71,7 @@ module AppConfig
       doc[:acceptable_keys] = doc[:acceptable_keys].each_with_object({}) do |kv, obj|
         obj[kv.first] = kv.last.map(&:constantize)
       end
+      doc[:output_file_encoding] = doc[:output_file_encoding].constantize
       doc
     end
 

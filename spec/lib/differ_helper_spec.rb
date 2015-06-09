@@ -47,10 +47,10 @@ describe DifferHelper do
     end
   end
 
-  describe '#count_by_colt' do
+  describe '#count_by_col' do
     context '@result_setが空の場合' do
       subject { differ.count_by_col }
-      it { should be_nil }
+      it { should {} }
     end
 
     context '@result_setが空ではない場合' do

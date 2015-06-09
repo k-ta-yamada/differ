@@ -26,11 +26,12 @@ describe AppConfig do
     subject { described_class.differ }
     let(:expected) do
       { search_key:      :search_key,
-        search_values:   %w(0 1 2 3 4).map(&:to_i),
+        search_values:   %w(0 1 2 3 4 5 6 7 8 9).map(&:to_i),
         include_keys:    %i(include_col1_id include_col2_id),
         exclude_keys:    %i(exclude_col1 exclude_col2),
         acceptable_keys: { acceptable_col1: [NilClass, String],
-                           acceptable_col2: [String, NilClass] } }
+                           acceptable_col2: [String, NilClass] },
+        output_file_encoding: Encoding::SJIS }
     end
     it { should eq(expected) }
   end

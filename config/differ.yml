@@ -1,6 +1,6 @@
 :development: &default
   :search_key: :search_key
-  :search_values: [0, 1, 2, 3, 4]
+  :search_values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
   :include_keys:
         - :include_col1_id
         - :include_col2_id
@@ -10,6 +10,7 @@
   :acceptable_keys:
         :acceptable_col1: [NilClass, String]
         :acceptable_col2: [String, NilClass]
+  :output_file_encoding: Encoding::SJIS
 
 :test:
   <<: *default

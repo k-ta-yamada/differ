@@ -71,7 +71,7 @@ class Differ
     result = []
     Source.search_key_like(@search_value, @search_key).includes(:target)
       .find_each.with_index do |src, idx|
-      progress_log(idx, @primary_keys)
+      progress_log(idx, @primary_keys.size)
       result << diff(src) unless src.target.many?
     end
     result.to_set
