@@ -12,23 +12,6 @@ describe DifferHelper do
   end
   let(:differ) { included_class.new }
 
-  describe '#diff_keys' do
-    context '@result_setが空の場合' do
-      subject { differ.diff_keys }
-      it { should be_nil }
-    end
-
-    context '@result_setが空ではない場合' do
-      before do
-        differ.result_set << build(:differ_result, :diff1)
-        differ.result_set << build(:differ_result, :diff2)
-      end
-      it 'keyの配列を返すこと' do
-        expect(differ.diff_keys).to eq([:a, :b, :c])
-      end
-    end
-  end
-
   describe '#count_by_col' do
     context '@result_setが空の場合' do
       subject { differ.count_by_col }

@@ -1,13 +1,6 @@
 require 'csv'
 
 module DifferHelper
-  # 差異発生項目の一覧を返す
-  # @return Array-of-Symbol, Array
-  def diff_keys
-    return if @result_set.empty?
-    @result_set.map(&:diff).map(&:keys).flatten.uniq
-  end
-
   # @result_setから項目別の件数を集計する
   # @ return Hash
   def count_by_col
