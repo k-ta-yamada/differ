@@ -13,8 +13,9 @@ describe DifferHelper do
   let(:differ) { included_class.new }
 
   describe '#count_by_col' do
+    subject { differ.send(:count_by_col) }
+
     context '@result_setが空の場合' do
-      subject { differ.count_by_col }
       it { should {} }
     end
 
@@ -25,13 +26,31 @@ describe DifferHelper do
         differ.result_set << build(:differ_result, :diff3)
       end
       let(:expected) { { a: 2, b: 2, c: 2 } }
+
       it 'keyごとの件数を集計して返すこと' do
-        expect(differ.count_by_col).to eq(expected)
+        expect(subject).to eq(expected)
       end
     end
   end
 
-  describe '#output' do
-    xit
+  describe '#output_diff' do
+    xit '@result_setが空でもファイルは作成されること'
+    xit 'DifferResult#diffの内容が出力されること' do
+      expect(subject).to eq(CSV.read('./spec/result/rpsec.csv'))
+    end
+  end
+
+  describe '#output_acceptable_diff' do
+    xit '@result_setが空でもファイルは作成されること'
+    xit 'DifferResult#acceptable_diffの内容が出力されること' do
+      expect(subject).to eq(CSV.read('./spec/result/rpsec.csv'))
+    end
+  end
+
+  describe '#output_count_by_col' do
+    xit '@result_setが空でもファイルは作成されること'
+    xit 'DifferResult#diffをkeyごとに集計した結果（DifferHelper#count_by_col）が出力されること' do
+      expect(subject).to eq(CSV.read('./spec/result/rpsec.csv'))
+    end
   end
 end
