@@ -40,7 +40,7 @@ module DifferHelper
   OUTPUT_FILE_ENCODING = AppConfig.differ[:output_file_encoding]
 
   def file_name_preffix
-    "#{@search_value.to_s.ljust(4, 'x') || '_all'}"
+    "#{@search_value.to_s.ljust(4, 'x')}"
   end
 
   def output_csv_base(file_name, col_sep, attr_name)

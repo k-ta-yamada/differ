@@ -25,5 +25,14 @@ FactoryGirl.define do
     trait :diff3 do
       diff b: [1, 2], c: [1, 2]
     end
+
+    factory :differ_result_for_diff, traits: [:diff1] do
+      sequence :primary_key
+    end
+
+    factory :differ_result_for_acceptable_diff do
+      sequence :primary_key
+      acceptable_diff a: [1, 2], b: [1, 2]
+    end
   end
 end
