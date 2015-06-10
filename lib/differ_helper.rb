@@ -26,16 +26,6 @@ module DifferHelper
 
   private
 
-  # @result_setから項目別の件数を集計する
-  # @ return Hash
-  def count_by_col
-    return {} if @result_set.empty?
-    result = @result_set.each_with_object(Hash.new(0)) do |r, h|
-      r.diff.each { |col_nm, _| h[col_nm] += 1 }
-    end
-    result.sort.to_h
-  end
-
   BASE_DIR_NAME = './result/'
   OUTPUT_FILE_ENCODING = AppConfig.differ[:output_file_encoding]
 
@@ -45,8 +35,7 @@ module DifferHelper
 
   def output_csv_base(file_name, col_sep, attr_name)
     file = "#{BASE_DIR_NAME}#{file_name}"
-    options = { external_encoding: OUTPUT_FILE_ENCODING,
-                col_sep: col_sep }
+    options = { external_encoding: OUTPUT_FILE_ENCODING, col_sep: col_sep }
     CSV.open(file, 'w', options) do |csv|
       @result_set.each do |r|
         r.send(attr_name).each { |k, v| csv << [*common_attr(r), k.upcase, *v] }
@@ -64,6 +53,16 @@ module DifferHelper
      result.search_value,
      result.source_ext,
      result.target_ext]
+  end
+
+  # @result_setから項目別の件数を集計する
+  # @ return Hash
+  def count_by_col
+    return {} if @result_set.empty?
+    result = @result_set.each_with_object(Hash.new(0)) do |r, h|
+      r.diff.each { |col_nm, _| h[col_nm] += 1 }
+    end
+    result.sort.to_h
   end
 
   # Differ#do_find_eachの進捗状況出力要

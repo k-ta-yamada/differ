@@ -113,4 +113,8 @@ describe DifferHelper do
       end
     end
   end
+
+  describe '#output_count_by_col' do
+    xit '#output_diffとかと同じようにテストする'
+  end
 end
