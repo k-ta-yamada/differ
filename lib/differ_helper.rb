@@ -1,22 +1,30 @@
 require 'csv'
 
 module DifferHelper
-  # 差分の出力::項目ごとに1行
+  OUTPUT_FILE_BASE_DIR = './result/'
+  OUTPUT_FILE_ENCODING = AppConfig.differ[:output_file_encoding]
+
+  # 差分の出力
+  # @param col_sep String
+  # @return String ファイル名
   def output_diff(col_sep = "\t")
     file_name = "#{file_name_preffix}_diff.csv"
     output_csv_base(file_name, col_sep, :diff)
   end
 
   # 許容される差分の出力
+  # @param col_sep String
+  # @return String ファイル名
   def output_acceptable_diff(col_sep = "\t")
     file_name = "#{file_name_preffix}_acceptable_diff.csv"
     output_csv_base(file_name, col_sep, :acceptable_diff)
   end
 
   # 差分項目の一覧を出力
+  # @return String ファイル名
   def output_count_by_col
     file_name = "#{file_name_preffix}_count_by_col.txt"
-    file = "#{BASE_DIR_NAME}#{file_name}"
+    file = "#{OUTPUT_FILE_BASE_DIR}#{file_name}"
     options = { external_encoding: OUTPUT_FILE_ENCODING }
     File.open(file, 'w', options) do |f|
       count_by_col.each { |k, v| f.puts "#{k.upcase}\t#{v}" }
@@ -26,15 +34,17 @@ module DifferHelper
 
   private
 
-  BASE_DIR_NAME = './result/'
-  OUTPUT_FILE_ENCODING = AppConfig.differ[:output_file_encoding]
-
+  # @return String
   def file_name_preffix
     "#{@search_value.to_s.ljust(4, 'x')}"
   end
 
+  # @param file_name String
+  # @param col_sep String
+  # @param attr_name Symbol
+  # @return String ファイル名を返す
   def output_csv_base(file_name, col_sep, attr_name)
-    file = "#{BASE_DIR_NAME}#{file_name}"
+    file = "#{OUTPUT_FILE_BASE_DIR}#{file_name}"
     options = { external_encoding: OUTPUT_FILE_ENCODING, col_sep: col_sep }
     CSV.open(file, 'w', options) do |csv|
       @result_set.each do |r|

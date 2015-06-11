@@ -1,10 +1,12 @@
 /.bundle
+/.yardoc
 /vendor
 ~*
 *.log
 *.lnk
 .tags*
 /config/production/*.yml
+/doc
 /result/*.csv
 /result/*.txt
 /result/*.log
