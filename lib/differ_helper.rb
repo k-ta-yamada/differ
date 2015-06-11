@@ -2,7 +2,7 @@ require 'csv'
 
 module DifferHelper
   OUTPUT_FILE_BASE_DIR = case AppConfig.environment
-                         when :production
+                         when :production, :test
                            './result/'
                          else
                            "./result/#{AppConfig.environment}/"
