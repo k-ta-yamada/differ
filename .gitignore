@@ -7,9 +7,9 @@
 .tags*
 /config/production/*.yml
 /doc
-/result/*.csv
-/result/*.txt
-/result/*.log
+/result/**/*.csv
+/result/**/*.txt
+/result/**/*.log
 /db/*.sqlite3*
 /log/*.log
 /log/*.log.*

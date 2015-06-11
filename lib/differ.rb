@@ -26,12 +26,9 @@ class Differ
         new(search_value).do_perform
       end
 
-      # ap results.map(&:output) unless AppConfig.environment == :benchmark
-      unless AppConfig.environment == :benchmark
-        results.map(&:output_diff)
-        results.map(&:output_acceptable_diff)
-        results.map(&:output_count_by_col)
-      end
+      ap results.map(&:output_diff)
+      ap results.map(&:output_acceptable_diff)
+      ap results.map(&:output_count_by_col)
       results
     end
   end

@@ -1,7 +1,12 @@
 require 'csv'
 
 module DifferHelper
-  OUTPUT_FILE_BASE_DIR = './result/'
+  OUTPUT_FILE_BASE_DIR = case AppConfig.environment
+                         when :production
+                           './result/'
+                         else
+                           "./result/#{AppConfig.environment}/"
+                         end
   OUTPUT_FILE_ENCODING = AppConfig.differ[:output_file_encoding]
 
   # 差分の出力
