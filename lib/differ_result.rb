@@ -30,8 +30,8 @@ class DifferResult
   def copy_to_acceptable_diff
     acceptables = AppConfig.differ[:acceptable_keys]
     @acceptable_diff = @diff.select do |key, val|
-      from_class = acceptables[key].first || NilClass
-      to_class   = acceptables[key].last || NilClass
+      from_class = Array(acceptables[key]).shift || NilClass
+      to_class   = Array(acceptables[key]).shift || NilClass
       from_val, to_val     = val
       from_val.is_a?(from_class) && to_val.is_a?(to_class)
     end

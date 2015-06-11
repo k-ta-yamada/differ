@@ -1,6 +1,7 @@
 AllCops:
   Exclude:
-    - 'db/**/*'
+    - db/migrate/*
+    - vendor/**/*
 
 inherit_from: .rubocop_todo.yml
 

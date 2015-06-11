@@ -10,16 +10,17 @@ describe Differ do
   end
 
   describe '.do_perform' do
-    subject { described_class }
+    subject { described_class.do_perform }
     before { Dir.mkdir('./result') }
-    it do
-      expect(subject.do_perform.size).to eq(10)
+    it '配列が10件' do
+      expect(subject).to be_a(Array)
+      expect(subject.size).to eq(10)
     end
   end
 
   describe '#do_perform' do
     subject { described_class.new(1) }
-    it do
+    it '自身のインスタンスが返ること' do
       expect(subject.do_perform).to eq(subject)
     end
   end

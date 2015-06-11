@@ -129,7 +129,7 @@ describe DifferHelper do
       subject { differ.send(:count_by_col) }
 
       context '@result_setが空の場合' do
-        it { should {} }
+        it { should eq({}) }
       end
 
       context '@result_setが空ではない場合' do
