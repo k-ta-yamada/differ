@@ -1,6 +1,8 @@
 # @ref https://github.com/defunkt/fakefs/blob/master/lib/fakefs/spec_helpers.rb
 require 'fakefs/spec_helpers'
 describe DifferHelper do
+  include FakeFS::SpecHelpers
+
   describe '#count_by_col' do
     # @ref Testing Ruby Modules with rspec - Stack Overflow
     # @url http://stackoverflow.com/questions/27341800/testing-ruby-modules-with-rspec
@@ -35,8 +37,6 @@ describe DifferHelper do
   end
 
   describe '#output_diff' do
-    include FakeFS::SpecHelpers
-    before { Dir.mkdir('./result') }
     subject(:differ) { Differ.new(11) }
     let(:file) { './result/11xx_diff.csv' }
     let(:data) do
@@ -51,6 +51,7 @@ describe DifferHelper do
        [5, 'search_key', 11, nil, nil, 'A', 1, 2],
        [5, 'search_key', 11, nil, nil, 'B', 1, 2]]
     end
+    before { Dir.mkdir('./result') }
 
     context '@result_setが空の場合' do
       before { differ.result_set.clear }
@@ -75,8 +76,6 @@ describe DifferHelper do
   end
 
   describe '#acceptable_diff' do
-    include FakeFS::SpecHelpers
-    before { Dir.mkdir('./result') }
     subject(:differ) { Differ.new(11) }
     let(:file) { './result/11xx_acceptable_diff.csv' }
     let(:data) do
@@ -91,6 +90,7 @@ describe DifferHelper do
        [5, 'search_key', 11, nil, nil, 'A', 1, 2],
        [5, 'search_key', 11, nil, nil, 'B', 1, 2]]
     end
+    before { Dir.mkdir('./result') }
 
     context '@result_setが空の場合' do
       before { differ.result_set.clear }
@@ -115,6 +115,33 @@ describe DifferHelper do
   end
 
   describe '#output_count_by_col' do
-    xit '#output_diffとかと同じようにテストする'
+    subject(:differ) { Differ.new(11) }
+    let(:file) { './result/11xx_count_by_col.txt' }
+    let(:data) do
+      [['A', 5],
+       ['B', 5]]
+    end
+    before { Dir.mkdir('./result') }
+
+    context '@result_setが空の場合' do
+      before { differ.result_set.clear }
+
+      it '空ファイルは作成されること' do
+        expect(differ.output_count_by_col).to eq(file)
+        expect(File.file?(file)).to be_truthy
+        expect(File.open(file, 'r').read).to eq('')
+      end
+    end
+
+    context '@result_setが空でない場合' do
+      before { differ.result_set.merge build_list(:differ_result_for_diff, 5) }
+      let(:expected) { data.map { |d| d.join("\t") }.join("\n") << "\n" }
+
+      it 'DifferResult#acceptable_diffの内容が出力されること' do
+        expect(differ.output_count_by_col).to eq(file)
+        expect(File.file?(file)).to be_truthy
+        expect(File.open(file, 'r').read).to eq(expected)
+      end
+    end
   end
 end
