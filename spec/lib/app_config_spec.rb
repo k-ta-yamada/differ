@@ -38,22 +38,20 @@ describe AppConfig do
 
   describe 'private method' do
     describe '#key_check' do
-      # subject(:subject) { AppConfig.send(:key_check, doc_keys, be_included, file_name) }
-      let(:doc_keys) { %i(a b c) }
+      let(:valid_doc) { { a: 1, b: 2, c: 3 } }
+      let(:invalid_doc) { { a: 1, b: 2 } }
       let(:be_included) { %i(a b c) }
-      let(:file_name) { 'test' }
+      let(:method_name) { 'test' }
 
-      context 'doc_keys == be_included' do
-        it do
-          expect(AppConfig.send(:key_check, doc_keys, be_included, file_name)).to be_nil
-        end
+      context 'doc.keys == be_included' do
+        subject { AppConfig.send(:key_check, valid_doc, be_included, method_name) }
+        it { should eq(valid_doc) }
       end
 
-      context 'doc_keys != be_included' do
+      context 'doc.keys != be_included' do
+        subject { AppConfig.send(:key_check, invalid_doc, be_included, method_name) }
         it do
-          be_included = %i(a b)
-          expect { AppConfig.send(:key_check, doc_keys, be_included, file_name) }
-            .to raise_error(RuntimeError, '[test] #<Set: {:c}>')
+          expect { subject }.to raise_error(RuntimeError, '[test] #<Set: {:c}>')
         end
       end
     end

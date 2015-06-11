@@ -17,16 +17,23 @@ class DifferResult
   # @return DifferResult
   def move_to_acceptable_diff!
     return self if @diff.empty?
-    acceptables = AppConfig.differ[:acceptable_keys]
 
-    @acceptable_diff = @diff.select do |key, val|
-      from_class, to_class = acceptables[key] || [NilClass, NilClass]
-      from_val, to_val     = val
-      from_val.is_a?(from_class) && to_val.is_a?(to_class)
-    end
+    copy_to_acceptable_diff
 
     # @acceptable_diffに移した項目を@diffから削除する
     @diff.delete_if { |k, _| @acceptable_diff.keys.include?(k) }
     self
+  end
+
+  private
+
+  def copy_to_acceptable_diff
+    acceptables = AppConfig.differ[:acceptable_keys]
+    @acceptable_diff = @diff.select do |key, val|
+      from_class = acceptables[key].first || NilClass
+      to_class   = acceptables[key].last || NilClass
+      from_val, to_val     = val
+      from_val.is_a?(from_class) && to_val.is_a?(to_class)
+    end
   end
 end

@@ -29,13 +29,17 @@ module AppConfig
     private
 
     CONFIG_BASE_DIR = './config'
-
-    def sub_dir
-      environment == :production ? '/production/' : '/'
+    def config_dir
+      case environment
+      when :production
+        "#{CONFIG_BASE_DIR}/production/"
+      else
+        "#{CONFIG_BASE_DIR}/"
+      end
     end
 
     def load_yaml(method_name)
-      file_name = "#{CONFIG_BASE_DIR}#{sub_dir}#{method_name}.yml"
+      file_name = "#{config_dir}#{method_name}.yml"
       YAML.load_file(file_name)[environment]
     end
 
@@ -43,31 +47,28 @@ module AppConfig
       load_yaml(method_name)
     end
 
+    MODELS_BE_INCLUDED = %i(source_table_name
+                            source_primary_key
+                            target_table_name
+                            target_primary_key)
     def loading_models_setting(method_name)
-      file_name = "#{method_name}.yml"
-      be_included = %i(source_table_name
-                       source_primary_key
-                       target_table_name
-                       target_primary_key)
-
       doc = load_yaml(method_name)
-      key_check(doc.keys, be_included, file_name)
-      doc
+      key_check(doc, MODELS_BE_INCLUDED, method_name)
     end
 
+    DIFFER_BE_INCLUDED = %i(search_key
+                            search_values
+                            include_keys
+                            exclude_keys
+                            acceptable_keys
+                            output_file_encoding)
     def loading_differ_settings(method_name)
-      file_name = "#{method_name}.yml"
-      be_included = %i(search_key
-                       search_values
-                       include_keys
-                       exclude_keys
-                       acceptable_keys
-                       output_file_encoding)
-
       doc = load_yaml(method_name)
-      key_check(doc.keys, be_included, file_name)
+      doc = key_check(doc, DIFFER_BE_INCLUDED, method_name)
+      edit_differ_setting(doc)
+    end
 
-      doc[:search_values] = Array(doc[:search_values])
+    def edit_differ_setting(doc)
       doc[:acceptable_keys] = doc[:acceptable_keys].each_with_object({}) do |kv, obj|
         obj[kv.first] = kv.last.map(&:constantize)
       end
@@ -75,9 +76,10 @@ module AppConfig
       doc
     end
 
-    def key_check(doc_keys, be_included, file_name)
-      result = doc_keys.to_set ^ be_included.to_set
-      fail "[#{file_name}] #{result.inspect}" if result.present?
+    def key_check(doc, be_included, method_name)
+      result = doc.keys.to_set ^ be_included.to_set
+      fail "[#{method_name}] #{result.inspect}" if result.present?
+      doc
     end
   end
 end
