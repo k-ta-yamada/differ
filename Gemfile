@@ -18,11 +18,7 @@ gem 'activerecord-import'
 
 group :production do
   gem 'ruby-oci8'
-  # gem 'activerecord-oracle_enhanced-adapter'
-  # ref: https://github.com/rails/rails/issues/18739
-  gem 'activerecord-oracle_enhanced-adapter',
-      git: 'https://github.com/rsim/oracle-enhanced.git',
-      branch: 'rails42'
+  gem 'activerecord-oracle_enhanced-adapter'
 end
 
 group :test, :development, :benchmark do
